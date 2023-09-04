@@ -1,0 +1,14 @@
+<%- include("partials/header.ejs") %>
+<p>Check out our featured article to put you in the TaskZen mindset!</p>
+<h1><%= title %></h1>
+
+<div class="container">
+  <img src=<%= image %> alt="Featured Image">
+  <div class="overlay">
+    <div class="text"><a href=<%= link %>>CLICK TO VIEW ARTICLE</a></div>
+  </div>
+</div>
+<h2>Article by <%= author %></h2>
+<p><%= description %></p>
+
+<%- include("partials/footer.ejs") %>

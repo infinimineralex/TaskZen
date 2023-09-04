@@ -1,0 +1,29 @@
+<%- include("partials/header.ejs") %>
+
+<%var taskArr = locals.wTasks %>
+<% if (taskArr.length > 0) { %>
+  <h1>Your Work To-Do List:</h1>
+  <p>What do you want to accomplish at work?
+  </p>
+  <form action="/wdelete" method="POST">
+  <%for(var i = 0; i < taskArr.length; i++){%>
+      
+    <input type="checkbox" id="task<%=i%>" name="theTask<%=i%>" value=<%=i%>>
+    <label for="theTask<%=i%>"><%=taskArr[i]%></label><br>
+    
+  <%}%>
+  <input type="submit" value="Finish Selected Tasks">
+  </form>
+  <% } else { %>
+    <h1>You have no work tasks.</h1>
+    <% } %>
+  <p>
+    Create a new task:
+    <form action="/wsubmit" method="POST">
+      <input type="text" name="task" placeholder="Task Description">
+      <input type="submit" value="Create Task">
+    </form> 
+  </p>
+
+
+  <%- include("partials/footer.ejs") %>

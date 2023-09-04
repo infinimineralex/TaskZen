@@ -1,0 +1,30 @@
+<%- include("partials/header.ejs") %>
+
+<h1>Welcome to TaskZen</h1>
+<%var taskArr = locals.tasks %>
+<%console.log(taskArr) %>
+<% if (taskArr.length > 0) { %>
+  <h1>Your To-Do List:</h1>
+  <p>What do you want to accomplish today?
+  </p>
+  <form action="/delete" method="POST">
+  <%for(var i = 0; i < taskArr.length; i++){%>
+    
+    <input type="checkbox" id="task<%=i%>" name="theTask<%=i%>" value=<%=i%>>
+    <label for="theTask<%=i%>"><%=taskArr[i]%></label><br>
+    
+  <%}%>
+  <input type="submit" value="Finish Selected Tasks">
+  </form>
+  <% } else { %>
+    <h1>You have no tasks.</h1>
+    <% } %>
+  <p>
+    Create a new task:
+    <form action="/submit" method="POST">
+      <input type="text" name="task" placeholder="Task Description">
+      <input type="submit" value="Create Task">
+    </form> 
+  </p>
+
+  <%- include("partials/footer.ejs") %>

@@ -6,14 +6,38 @@ const app = express();
 const port = 3000;
 var taskList = [];
 var taskListW = [];
+const { connectToMongoDB } = require('./db');
+connectToMongoDB();
+const { client } = require('./db');
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.get("/", (req, res) =>{
+/*app.get("/", (req, res) =>{
   res.render("index.ejs", { tasks: taskList});
+});*/
+app.get('/', async (req, res) => {
+  const tasksCollection = client.db('local').collection('tasks');
+
+  try {
+    const tasks = await tasksCollection.find().toArray();
+    res.render('index.ejs', { tasks: tasks.map(task => task.task) });
+  } catch (error) {
+    console.error('Error fetching tasks from MongoDB:', error);
+  }
 });
-app.get("/about", (req, res) => {
-  res.render("about.ejs", { wTasks: taskListW});
+/*app.get("/work", (req, res) => {
+  res.render("work.ejs", { wTasks: taskListW});
+});*/
+app.get("/work", async (req, res) => {
+  const tasksCollectionW = client.db('local').collection('wTasks');
+
+  try {
+    const workTasks = await tasksCollectionW.find().toArray();
+    res.render("work.ejs", { wTasks: workTasks.map(task => task.task) });
+  } catch (error) {
+    console.error('Error fetching work tasks from MongoDB:', error);
+  }
 });
 app.get("/contact", (req, res) => {
   res.render("contact.ejs");
@@ -31,15 +55,39 @@ app.get("/zentips", async (req, res) => {
     res.render("zentips.ejs", { title: JSON.stringify("An error occured. Pleae try again.")});
   }
 });
-app.post("/submit", (req, res) => {
+/*app.post("/submit", (req, res) => {
   console.log(req.body);
   taskList.push(req.body["task"]);
   res.render("index.ejs", { tasks: taskList});
+});*/
+app.post('/submit', async (req, res) => {
+  const newTask = req.body.task;
+  const tasksCollection = client.db('local').collection('tasks');
+
+  try {
+    const result = await tasksCollection.insertOne({ task: newTask });
+    console.log('Task added to MongoDB:', result.ops[0]);
+    res.render('index.ejs', { tasks: taskList });
+  } catch (error) {
+    console.error('Error adding task to MongoDB:', error);
+  }
 });
-app.post("/wsubmit", (req, res) => {
+/*app.post("/wsubmit", (req, res) => {
   console.log(req.body);
   taskListW.push(req.body["task"]);
-  res.render("about.ejs", { wTasks: taskListW});
+  res.render("work.ejs", { wTasks: taskListW});
+});*/
+app.post("/wsubmit", async (req, res) => {
+  const newWorkTask = req.body.task;
+  const tasksCollectionW = client.db('local').collection('wTasks');
+
+  try {
+    const result = await tasksCollectionW.insertOne({ task: newWorkTask });
+    console.log('Work task added to MongoDB:', result.ops[0]);
+    res.redirect('/work');
+  } catch (error) {
+    console.error('Error adding work task to MongoDB:', error);
+  }
 });
 app.post("/delete", (req, res) => {
   console.log("delete req body");
@@ -73,7 +121,7 @@ app.post("/wdelete", (req, res) => {
     //}
     
   }
-  res.render("about.ejs", { wTasks: taskListW});
+  res.render("work.ejs", { wTasks: taskListW});
 });
 
 app.listen(port, () => {
